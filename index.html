@@ -1,0 +1,8 @@
+
+<!DOCTYPE html><html><head><title>CPK Crypto Scanner</title><style>body{background:#0f172a;color:white;font-family:Arial;padding:20px}h1{text-align:center}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}.card{background:#1e293b;padding:15px;border-radius:10px;transition:.3s}.card:hover{transform:scale(1.02)}.green{color:#22c55e}.red{color:#ef4444}.top{display:flex;justify-content:space-between;margin-bottom:20px}button{padding:10px;border:none;background:#22c55e;color:black;border-radius:8px;cursor:pointer}</style></head><body><h1>🚀 CPK Crypto Scanner</h1><div class="top"><button onclick="load()">🔄 Refresh</button><span id="status" style="color:#22c55e">🟢 LIVE</span></div><h2>📊 Futures</h2><div id="futures" class="grid"></div><h2>🟢 Memecoins</h2><div id="memecoins" class="grid"></div><h2>🔥 Trending</h2><div id="sentiment" class="grid"></div><script>const API="https://your-backend-url.onrender.com/signals";async function load(){try{const r=await fetch(API);const d=await r.json();document.getElementById("futures").innerHTML=d.futures.map(f=>`<div class="card"><h3>${f.symbol}</h3><p class="${f.change>0?'green':'red'}">${f.change.toFixed(2)}%</p><p>${f.signal}</p></div>`).join("");document.getElementById("memecoins").innerHTML=d.memecoins.map(m=>`<div class="card"><h3>${m.name}</h3><p>$${parseFloat(m.price||0).toFixed(6)}</p><p>Liquidity: $${Math.floor(m.liquidity||0)}</p><p>${m.flow}</p></div>`).join("");document.getElementById("sentiment").innerHTML=d.sentiment.map(s=>`<div class="card"><h3>${s.name}</h3><p>${s.symbol}</p></div>`).join("")}catch(e){document.getElementById("status").innerText="❌ Error"}}load();setInterval(load,5000);</script></body></html>
+
+
+
+
+
+

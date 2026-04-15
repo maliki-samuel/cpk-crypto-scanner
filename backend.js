@@ -1,0 +1,7 @@
+const express=require("express");const fetch=require("node-fetch");const cors=require("cors");const app=express();app.use(cors());const PORT=process.env.PORT||3000;
+async function safeFetch(url){try{const r=await fetch(url);return await r.json()}catch(e){return null}}
+async function getFutures(){const d=await safeFetch("https://api.binance.com/api/v3/ticker/24hr");if(!d)return[];return d.filter(c=>c.symbol.endsWith("USDT")).slice(0,20).map(c=>{const change=parseFloat(c.priceChangePercent)||0;const vol=parseFloat(c.quoteVolume)||0;let s="NEUTRAL";if(change<-8&&vol>5e7)s="LONG ";else if(change>8&&vol>5e7)s="SHORT ";return{symbol:c.symbol,change,signal:s}})}
+async function getMemecoins(){const d=await safeFetch("https://api.dexscreener.com/latest/dex/pairs");if(!d||!d.pairs)return[];return d.pairs.filter(p=>p.liquidity&&p.liquidity.usd>2e4).slice(0,20).map(p=>{const ch=p.priceChange?.h24||0;const v=p.volume?.h24||0;let f="NEUTRAL";if(ch>0&&v>5e4)f="BUY ";else if(ch<0&&v>5e4)f="SELL ";return{name:p.baseToken.symbol,price:p.priceUsd,liquidity:p.liquidity.usd,flow:f}})}
+async function getSentiment(){const d=await safeFetch("https://api.coingecko.com/api/v3/search/trending");if(!d)return[];return d.coins.map(c=>({name:c.item.name,symbol:c.item.symbol}))}
+app.get("/signals",async(req,res)=>{const [f,m,s]=await Promise.all([getFutures(),getMemecoins(),getSentiment()]);res.json({futures:f,memecoins:m,sentiment:s})});
+app.listen(PORT,()=>console.log("Running "+PORT));
